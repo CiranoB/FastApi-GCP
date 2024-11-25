@@ -1,0 +1,40 @@
+version: '3.9'
+services:
+  postgres-gcp:
+    image: postgres:latest
+    container_name: postgres-gcp
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: public
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    expose:
+      - "5432"
+    networks:
+      - gcp_network
+
+  app:
+    build: .
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
+    expose:
+      - "8000"
+    environment:
+      DB_DRIVER: postgresql
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: postgres-gcp
+      DB_PORT: 5432
+      DB_NAME: public
+    depends_on:
+      - postgres-gcp
+    networks:
+      - gcp_network
+
+
+networks:
+  gcp_network:
+    driver: bridge
